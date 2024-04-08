@@ -1,0 +1,103 @@
+Kubernetes
+
+- Scheduled Monday April 8th
+- What is Kubernetes?
+  - Abstract
+    - A new way to look at a problem of running distributed, inter-connected services on a computer network
+    - The traditional way where administrators keep track of each service and machine is labor intensive because it requires understanding the current state in order to make changes.
+    - This traditional way breaks down at scale: nobody can keep track of all the machines, all the services, all the configurations, dependencies, versioning, and cloud infrastructure as the number of services increases to tens of thousands.
+    - The new way is telling an orchestrator your desired end result. The orchestrator applies changes based on the current state that it's able to keep track of because it's an automated distributed service itself.
+    - If something goes wrong, it's easier to isolate the problem down to a transactional interaction of a few components, so that it can be reproduced and fixed.
+    - The traditional way often causes problems that are hard to replicate and are therefore band-aided over and over again as they happen. The Production team is locked up in a cycle of endless fixing and no time for making improvements.
+  - Concrete
+    - A way to deploy containerized services that work together by using  a manifest (a declaration of what you want to be running)
+    - Builds on the concept of a container
+    - <Example of Manifest(s)>
+    - Manifests can be source-controlled like Terraform, ARM or Bicep templates in Azure, or Cloud Formation in AWS
+    - Kubernetes has a package manager called Helm that can be used to assemble a manifest from standard parts <Example of Packages>
+    - Kubernetes orchestrator reads the given manifest and applies changes to the underlying infrastructure and services
+    - Kubernetes talks to the hardware it's running on via plugins, such as the container runtime, storage, software-defined networking, and cloud services like load balancers and firewalls
+    - Changes are applied via CLI or a Dashboard
+      - Example CLI command
+      - Example Dashboard
+  - Kubernetes was built to:
+    - Re-gain control over distributed & connected services at scale
+    - [https://research.google/pubs/large-scale-cluster-management-at-google-with-borg](https://research.google/pubs/large-scale-cluster-management-at-google-with-borg)
+  - Kubernetes was released to:
+    - Get assistance with continuous development from the community
+    - Help the Sales team poach customers from Amazon Web Services and Azure Cloud ("avoid cloud provider lock-on")
+    - Amazon and Microsoft promptly responded by releasing plugins that only work with Kubernetes on their platforms, which polluted the Kubernetes ecosystem and re-established cloud provider lock-on
+- Background
+  - Docker: A Project-Based Approach to Learning by Jason Cannon
+  - The Kubernetes Book: 2023 Edition by Nigel Poulton
+  - LFS158x: Introduction to Kubernetes
+  - Kubernetes documentation ([kubernetes.io](http://kubernetes.io/))
+- Features
+  - Standardizes Cloud provider features and lets you run "your own cloud" on-prem if desired
+    - Manifest
+    - Horizontal scaling
+    - Vertical scaling
+    - Path-based routing
+    - Load balancing
+    - Software-defined networking
+    - Resiliency when deployed in multiple Availability Zones
+    - Isolated Dev/Test/Production environments
+    - Green/Blue and Canary deployments
+  - Simplifies running many services on many machines with low reliability
+    - When manifest changes, Kubernetes automatically re-deploys anything affected by the changes
+    - Simplifies deploying a new version of a service
+    - Unhealthy services are automatically restarted
+    - If the hardware becomes unhealthy, it's rebooted and the services are re-schedule on different hardware automatically
+    - Simplifies dynamically assembling infrastructure and services taking all dependencies into account
+      - A needs storage
+      - B needs a load balancer
+      - C service needs a specific version of D service
+      - What do I need to do to have A, B, and C all running?
+    - Canary deployments (directing a % of users to a new service in the "dark" environment) and Blue/Green deployments are supported out of the box
+    - Kubernetes administrator has a control panel where they can monitor services being updated, coming back online, and the ready status (because health checks are built-in)
+    - Since manifests are just YAML files, you can re-use open source snippets or have Generative AI build your system by asking it to generate a manifest for a use case
+  - Helm package manager will let you assemble your environment from standard parts: [https://helm.sh/](https://helm.sh/)
+    - Authentication/authorization like KeyCloak
+    - Load balancing like NginX
+    - File Storage
+    - Databases
+    - Cache
+    - Tunnels to on-premise servers
+    - Logging aggregators like Splunk and New Relic
+    - Firewall
+    - Distributed Configuration
+    - You can create packages to share in the organization that provide re-usable parts for everyone's services. In enterprise development scenario, a cloud architect could publish a package used by multiple product teams.
+  - Kubernetes Federation lets you manage clusters in multiple Availability Zones to enable fail-over: [https://kubernetes.io/blog/2018/12/12/kubernetes-federation-evolution/](https://kubernetes.io/blog/2018/12/12/kubernetes-federation-evolution/)
+- Downsides
+  - Complexity
+    - Many "complications" of maintaining large distributed systems have simply been shifted to another frequency.
+    - Instead of struggling with network administration, now you struggle with writing manifests and trying to configure plugins so that orchestrator can apply changes in the manifest.
+    - Complicated enough that you can't muddle your way through it for real use in production.
+    - Tutorials and "marketing" don't do this justice and make things sound deceptively easy. Part of the reason is pollution of the ecosystem by other cloud providers.
+    - Security is complicated to setup properly, with lots of conflicting constraints to keep in mind at the same time. It's a "growth pain", since Kubernetes was used internally at Google before its release.
+    - High-availability/multi-zone deployment is still complicated to setup and requires Kubernetes Federation
+  - Conflicting constraints
+    - Software-defined networking was built on top of features specific to Linux operating system, so any limitations that came out of that became Kubernetes limitations that you now have to work around.
+    - Lots of memorizing what each feature can handle, and using a plugin or another feature otherwise
+    - Plugin system for cloud-provider-specific services like load balancing and storage ensures learning "never stops", and you have to endlessly troubleshoot each plugin you choose until you memorize what each plugin "likes" and how to configure it
+    - Instead of satisfying frustrating service dependencies (determining what each service "likes" and finding a combination that works) you have to satisfy frustrating feature and plugin requirements.
+    - Frustrating conflict resolution has simply been "factored out" of maintaining specific services, into the "outer" part of the equation for maintaining a large mesh of services, not eliminated
+  - Another ecosystem to learn
+    - Open-source package ecosystem ensures that you will have to memorize which packages work with which other packages despite the "theoretical" advantage that you can quickly cobble something together out of a large bin of free parts.
+    - Update an old package and you're suddenly in dependency hell because its peer dependency doesn't work with a peer dependency of another package which its author wrote in Grandma's bathroom during a family trip to solve a specific problem and hasn't updated since then
+  - Architecture decay & growing pains
+    - Some features like load balancing and software-defined networking were meant to be a core part of the system, but after the public release it became apparent that they didn't handle real scenarios that many people have.
+    - In the end Kubernetes turned into "a little of everything for everybody", with muddy "design by committee" that's tough to explain, some features replaced by plugins.
+- Switching to Kubernetes?
+  - Maintaining services at a scale: we are not yet struggling with issues of scale
+  - Reducing cloud hosting costs: we won't realize cost savings unless we switch to a different cloud. We would have more options for doing so if we used Kubernetes:
+    - [https://www.civo.com/kubernetes](https://www.civo.com/kubernetes)
+    - [https://www.vultr.com/kubernetes](https://www.vultr.com/kubernetes)
+    - [https://www.linode.com/lp/kubernetes](https://www.linode.com/lp/kubernetes)
+    - [https://try.digitalocean.com/kubernetes-in-minutes](https://try.digitalocean.com/kubernetes-in-minutes)
+    - [https://hidora.io/en/produits/hebergement-kubernetes/](https://hidora.io/en/produits/hebergement-kubernetes/)
+  - Running on private cloud: we would rather run on managed public cloud
+    - [https://kubesail.com/homepage](https://kubesail.com/homepage)
+  - Painful deployment process
+    - Our deployments are manageable for now thanks to Rayne
+    - We can't use canary or blue/green to enable deploying within business hours because additional environments are too expensive at the moment
